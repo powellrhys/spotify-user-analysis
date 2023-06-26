@@ -9,6 +9,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# UI Components
 st.title('Top Artists')
 
 time_range_select = st.selectbox('Time Range', ('Long Term', 'Medium Term', 'Short Term'))
@@ -20,11 +21,12 @@ elif time_range_select == 'Medium Term':
 else:
     time_range = 'short_term'
 
+# Collect top artist data
 artist_df = read_csv(f'data/top_artist_data_{time_range}.csv')
-
 artist = artist_df['artist']
 artist_url = artist_df['image_url']
 
+# Create columns + render images
 col1, col2, col3, col4, col5 = st.columns(5, gap="small")
 
 with col1:
