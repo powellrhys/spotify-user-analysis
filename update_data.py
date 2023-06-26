@@ -43,8 +43,8 @@ def authenticate(client_id, client_secret):
 
     return token
 
-def collect_user_track_data(access_token, time_range):
-
+def call_user_top_data(access_token, time_range, type):
+        
     user_headers = {
         "Authorization": "Bearer " + access_token,
         "Content-Type": "application/json"
@@ -55,8 +55,14 @@ def collect_user_track_data(access_token, time_range):
         "time_range": time_range
     }
 
-    user_tracks_response = requests.get(f"https://api.spotify.com/v1/me/top/tracks", 
+    response = requests.get(f"https://api.spotify.com/v1/me/top/{type}", 
                                         params=user_params, headers=user_headers).json()
+
+    return response
+
+def collect_user_top_track_data(access_token, time_range):
+
+    user_tracks_response = call_user_top_data(access_token, time_range, 'tracks')
 
     data = []
     
@@ -69,11 +75,29 @@ def collect_user_track_data(access_token, time_range):
         data.append(metadata)
 
     df = pd.DataFrame(data=data, columns=['song_name', 'artist', 'image_url'])
-    df.to_csv(f'data/song_data_{time_range}.csv')
+    df.to_csv(f'data/top_song_data_{time_range}.csv')
 
+def collect_user_top_artist_data(access_token, time_range):
+
+    user_artists_response = call_user_top_data(access_token, time_range, 'artists')
+
+    data = []
+    
+    for i in user_artists_response['items']:
+        artist = i['name']
+        image_url = i['images'][0]['url']
+
+        metadata = [artist, image_url]
+        data.append(metadata)
+
+    df = pd.DataFrame(data=data, columns=['artist', 'image_url'])
+    df.to_csv(f'data/top_artist_data_{time_range}.csv')
 
 if __name__ == "__main__":
     token = authenticate(client_id, client_secret)
 
+    collect_user_top_artist_data(token, 'short_term')
+
     for i in ['short_term', 'medium_term', 'long_term']:
-        user_tracks_response = collect_user_track_data(token, i)
+        collect_user_top_track_data(token, i)
+        collect_user_top_artist_data(token, i)
