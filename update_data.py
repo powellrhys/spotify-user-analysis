@@ -55,7 +55,7 @@ def collect_user_track_data(access_token, time_range):
         "time_range": time_range
     }
 
-    user_tracks_response = requests.get("https://api.spotify.com/v1/me/top/tracks", 
+    user_tracks_response = requests.get(f"https://api.spotify.com/v1/me/top/tracks", 
                                         params=user_params, headers=user_headers).json()
 
     data = []
